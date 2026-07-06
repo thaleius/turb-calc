@@ -27,7 +27,7 @@
     <span>{name}: </span>
   {/if}
   <div>
-    <input type="text" class="text-xl bg-transparent border-0 text-right p-0 {inputClass}" value={value.toFixed(decimals)} oninput={(e) => {
+    <input type="text" class="text-xl bg-transparent border-0 text-right p-0 {inputClass}" value={value} oninput={(e) => {
       const input = sanitizeInput((e.target as HTMLInputElement).value);
       (e.target as HTMLInputElement).value = input;
       value = Number(input);
