@@ -2,7 +2,7 @@
   import Checkbox from "$lib/components/Checkbox.svelte";
   import Display from "$lib/components/Display.svelte";
   import TurbineUtil from "$lib/components/TurbineUtil.svelte";
-  import { FR, FRV, output } from "$lib/functions";
+  import { FR, FR_power, FRV, output, T } from "$lib/functions";
 
   let temp = $state(323.0);
 
@@ -12,22 +12,28 @@
   let flowRateValve1 = $state(0.00);
   let flowRateValve2 = $state(0.00);
 
-  let powerOutput1 = $derived(output(flowRate1));
-  let powerOutput2 = $derived(output(flowRate2));
+  let powerOutput1 = $state(0);
+  let powerOutput2 = $state(0);
 
   let turbsToPrimary = $state(false);
   
-  let excess = $derived(powerOutput1 + powerOutput2 - (turbsToPrimary ? 30000 : 0));
+  let excess = $state(0);
+
+  let notes: string[] = $state([]);
 
   const Temp = 1;
   const Excess = 2;
-  const FowRateValve = 3;
+  const FlowRateValve = 3;
   const FlowRate = 4;
   const Output = 5;
 
   const combinations = [
-    [1, 3],
-    [1, 4],
+    [1, 3], // temp & flow rate valve
+    [1, 4], // temp & flow rate
+
+    [1, 5], // temp & power output
+
+    [2, 3]  // excess & frv
   ];
 
   let checked: Record<string, boolean> = $state({
@@ -39,20 +45,98 @@
   })
 
   $effect(() => {
-    if (checked.frvEdit) {
-      flowRate1 = FR(temp, flowRateValve1);
-      flowRate2 = FR(temp, flowRateValve2);
+    let currentNotes: string[] = [];
+    if (checked.frvEdit && checked.excEdit) {
+      currentNotes.push("This combination yields accurate results only if the resulting temperature is above 425&nbsp;K.");
+      let newTemp = T(flowRateValve1+flowRateValve2, FR_power((excess + (turbsToPrimary ? 30000 : 0))) + 3.61);
+      newTemp = isFinite(newTemp) ? newTemp : 323;
+
+      let fr1 = FR(newTemp, flowRateValve1);
+      let fr2 = FR(newTemp, flowRateValve2);
+
+      if (fr1 <= 3.61 || fr2 <= 3.61) {
+        newTemp = T(Math.max(flowRateValve1, flowRateValve2), FR_power(excess + (turbsToPrimary ? 30000 : 0)));
+        newTemp = isFinite(newTemp) ? newTemp : 323;
+        
+        fr1 = FR(newTemp, flowRateValve1);
+        fr2 = FR(newTemp, flowRateValve2);
+      }
+
+      if (newTemp < 425) {
+        currentNotes.push(`<span class="text-red-400">The temperature is currently ${newTemp.toFixed(1)}&nbsp;K.</span>`)
+      }
+
+      temp = newTemp;
+
+      flowRate1 = fr1;
+      flowRate2 = fr2;
+      
+      powerOutput1 = output(fr1);
+      powerOutput2 = output(fr2);
+    } else if (checked.tempEdit && checked.outEdit) {
+      const fr1 = FR_power(powerOutput1);
+      const fr2 = FR_power(powerOutput2);
+
+      flowRate1 = fr1;
+      flowRate2 = fr2;
+      
+      flowRateValve1 = FRV(temp, fr1);
+      flowRateValve2 = FRV(temp, fr2);
+
+      excess = powerOutput1 + powerOutput2 - (turbsToPrimary ? 30000 : 0);
+    } else if (checked.frvEdit) {
+      const fr1 = FR(temp, flowRateValve1);
+      const fr2 = FR(temp, flowRateValve2);
+      
+      const out1 = output(fr1);
+      const out2 = output(fr2);
+
+      flowRate1 = fr1;
+      flowRate2 = fr2;
+      
+      powerOutput1 = out1;
+      powerOutput2 = out2;
+
+      excess = out1 + out2 - (turbsToPrimary ? 30000 : 0);
+    } else if (checked.excEdit) {
+      // do nothing
     } else {
       flowRateValve1 = FRV(temp, flowRate1);
       flowRateValve2 = FRV(temp, flowRate2);
+      
+      const out1 = output(flowRate1);
+      const out2 = output(flowRate2);
+
+      powerOutput1 = out1;
+      powerOutput2 = out2;
+
+      excess = out1 + out2 - (turbsToPrimary ? 30000 : 0);
     }
+
+    if (temp > 20000) {
+      currentNotes.push("Temperatures higher than 20000 K cannot be achieved.");
+    }
+
+    if (temp < 323) {
+      currentNotes.push("Temperatures lower than 323 K cannot be achieved.");
+    }
+
+    if (excess > 50000) {
+      currentNotes.push("Excess higher than 50000 kW cannot be achieved.");
+    }
+
+    if (flowRateValve1 > 100 || flowRateValve2 > 100) {
+      currentNotes.push("At least one of the turbines is operating at more than 100 % capacity.");
+    }
+    
+    notes = currentNotes;
   });
 
   const KEY_TO_ID: Record<keyof typeof checked, number> = {
     tempEdit: Temp,
     excEdit: Excess,
     frEdit: FlowRate,
-    frvEdit: FowRateValve,
+    frvEdit: FlowRateValve,
     outEdit: Output
   };
 
@@ -118,23 +202,34 @@
       </div>
     </div>
   </div>
-  <div class="flex flex-col gap-y-4">
-    <div class="flex flex-col gap-y-4 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+  <div class="flex flex-col gap-y-4 w-64">
+    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="flex flex-col gap-y-2">
-        <Checkbox text="Turbines powering Primary grid?" labelClass="w-42" bind:checked={turbsToPrimary} />
+        <Checkbox text="Turbines powering Primary grid?" labelClass="" bind:checked={turbsToPrimary} />
       </div>
     </div>
 
-    <div class="flex flex-col gap-y-4 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="title">Edit</div>
       <div class="flex flex-col gap-y-2">
         <Checkbox text="Temperature" bind:checked={checked.tempEdit} onchange={(e) => updateSelection('tempEdit', e.currentTarget.checked)} />
-        <!-- <Checkbox text="Excess" bind:checked={checked.excEdit} onchange={(e) => updateSelection('excEdit', e.currentTarget.checked)} /> -->
+        <Checkbox text="Excess" bind:checked={checked.excEdit} onchange={(e) => updateSelection('excEdit', e.currentTarget.checked)} />
         <Checkbox text="Flow Rate Valve" bind:checked={checked.frvEdit} onchange={(e) => updateSelection('frvEdit', e.currentTarget.checked)} />
         <Checkbox text="Flow Rate" bind:checked={checked.frEdit} onchange={(e) => updateSelection('frEdit', e.currentTarget.checked)} />
-        <!-- <Checkbox text="Power Output" bind:checked={checked.outEdit} onchange={(e) => updateSelection('outEdit', e.currentTarget.checked)} /> -->
+        <Checkbox text="Power Output" bind:checked={checked.outEdit} onchange={(e) => updateSelection('outEdit', e.currentTarget.checked)} />
       </div>
     </div>
+
+    {#if notes.length > 0}
+      <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+        <div class="title">Notes</div>
+        <div class="flex flex-col gap-y-1">
+          {#each notes as note}
+            <span>{@html note}</span>
+          {/each}
+        </div>
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -143,7 +238,7 @@
   .title {
     @apply text-xl;
     @apply font-bold;
-    @apply mb-1;
+    @apply mb-2;
     @apply text-orange-300;
     @apply uppercase;
   }
