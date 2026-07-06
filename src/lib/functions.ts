@@ -3,20 +3,25 @@ import { getConstants } from "./api";
 const [C1, C2] = await getConstants();
 const T0 = 323;
 const T1 = 370;
+const T2 = 423;
 
 export function FR(T: number, FRV: number) {
-  return FRV/C1 * (T > 423 ? (T-T0)**(1/2) : T > 370 ? ((T-T1)/C2) : 0);
+  return FRV/1000 * (pressure(T) - 101.3)**(1/2);
 }
 
 export function FRV(T: number, FR: number) {
-  return T > 370 ? (C1 * FR / (T > 423 ? (T-T0)**(1/2) : ((T-T1)/C2))) : 0;
+  return T > 370 ? (1000*FR / (pressure(T) - 101.3)**(1/2)) : 0;
 }
 
 export function T(FRV: number, FR: number) {
-  return (C1*FR/FRV)**2 + T0;
+  return (1000*FR/FRV)**2 / C1 + T0;
 }
 
-export function output(FR: number) {
+export function pressure(T: number) {
+  return (T > T1 ? T > T2 ? (C1 * (T-T0)) : (C1*C2 * (T-T1)**2) : 0) + 101.3;
+}
+
+export function power(FR: number) {
   return FR > 3.61 ? 5499 * (FR-3.61) : 0;
 }
 

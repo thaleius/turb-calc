@@ -2,9 +2,10 @@
   import Checkbox from "$lib/components/Checkbox.svelte";
   import Display from "$lib/components/Display.svelte";
   import TurbineUtil from "$lib/components/TurbineUtil.svelte";
-  import { FR, FR_power, FRV, output, T } from "$lib/functions";
+  import { FR, FR_power, FRV, power, pressure, T } from "$lib/functions";
 
   let temp = $state(423.0);
+  let pres = $derived(pressure(temp));
 
   let flowRate1 = $state(0.00);
   let flowRate2 = $state(0.00);
@@ -65,20 +66,20 @@
         flowRate2 = fr;
         flowRateValve1 = frv;
         flowRateValve2 = frv;
-        powerOutput1 = output(fr);
-        powerOutput2 = output(fr);
+        powerOutput1 = power(fr);
+        powerOutput2 = power(fr);
       } else {
         let fr1, fr2;
         if (lastEdited === 1) {
           fr1 = FR(temp, flowRateValve1);
-          fr2 = FR_power(excess - output(fr1) + (turbsToPrimary ? 30000 : 0));
+          fr2 = FR_power(excess - power(fr1) + (turbsToPrimary ? 30000 : 0));
           fr2 = fr2 < 3.61 ? 0 : fr2;
           const frv2 = FRV(temp, fr2)
           
           flowRateValve2 = frv2;
         } else if (lastEdited === 2) {
           fr2 = FR(temp, flowRateValve2);
-          fr1 = FR_power(excess - output(fr2) + (turbsToPrimary ? 30000 : 0));
+          fr1 = FR_power(excess - power(fr2) + (turbsToPrimary ? 30000 : 0));
           fr1 = fr1 < 3.61 ? 0 : fr1;
           const frv1 = FRV(temp, fr1)
           
@@ -87,8 +88,8 @@
         
         flowRate1 = fr1!;
         flowRate2 = fr2!;
-        powerOutput1 = output(fr1!);
-        powerOutput2 = output(fr2!);
+        powerOutput1 = power(fr1!);
+        powerOutput2 = power(fr2!);
       }
     } else if (checked.frvEdit && checked.excEdit) {
       currentNotes.push("This combination yields accurate results only if the resulting temperature is above 423&nbsp;K.");
@@ -115,8 +116,8 @@
       flowRate1 = fr1;
       flowRate2 = fr2;
       
-      powerOutput1 = output(fr1);
-      powerOutput2 = output(fr2);
+      powerOutput1 = power(fr1);
+      powerOutput2 = power(fr2);
     } else if (checked.tempEdit && checked.outEdit) {
       const fr1 = FR_power(powerOutput1);
       const fr2 = FR_power(powerOutput2);
@@ -132,8 +133,8 @@
       const fr1 = FR(temp, flowRateValve1);
       const fr2 = FR(temp, flowRateValve2);
       
-      const out1 = output(fr1);
-      const out2 = output(fr2);
+      const out1 = power(fr1);
+      const out2 = power(fr2);
 
       flowRate1 = fr1;
       flowRate2 = fr2;
@@ -148,8 +149,8 @@
       flowRateValve1 = FRV(temp, flowRate1);
       flowRateValve2 = FRV(temp, flowRate2);
       
-      const out1 = output(flowRate1);
-      const out2 = output(flowRate2);
+      const out1 = power(flowRate1);
+      const out2 = power(flowRate2);
 
       powerOutput1 = out1;
       powerOutput2 = out2;
@@ -237,6 +238,7 @@
   <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
     <div class="flex flex-col gap-y-1">
       <Display name="Temperature" bind:value={temp} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-24" compact />
+      <Display name="Pressure" bind:value={pres} decimals={1} unit="kPa" inputClass="w-24" compact />
       <Display name="Excess" bind:value={excess} bind:edit={checked.excEdit} decimals={1} unit="kW" inputClass="w-26" compact />
     </div>
     <div class="flex gap-x-2 [&>div]:w-1/2">

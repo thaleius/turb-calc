@@ -12,7 +12,7 @@
   }: {
     name: string,
     value: number,
-    edit: boolean,
+    edit?: boolean,
     decimals: number,
     unit: string,
     wrapperClass?: string,
