@@ -5,11 +5,11 @@ const T0 = 323;
 const T1 = 370;
 
 export function FR(T: number, FRV: number) {
-  return FRV/C1 * (T > 425 ? (T-T0)**(1/2) : T > 370 ? ((T-T1)/C2) : 0);
+  return FRV/C1 * (T > 423 ? (T-T0)**(1/2) : T > 370 ? ((T-T1)/C2) : 0);
 }
 
 export function FRV(T: number, FR: number) {
-  return T > 370 ? (C1 * FR / (T > 425 ? (T-T0)**(1/2) : ((T-T1)/C2))) : 0;
+  return T > 370 ? (C1 * FR / (T > 423 ? (T-T0)**(1/2) : ((T-T1)/C2))) : 0;
 }
 
 export function T(FRV: number, FR: number) {

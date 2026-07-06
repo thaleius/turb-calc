@@ -4,7 +4,7 @@
   import TurbineUtil from "$lib/components/TurbineUtil.svelte";
   import { FR, FR_power, FRV, output, T } from "$lib/functions";
 
-  let temp = $state(425.0);
+  let temp = $state(423.0);
 
   let flowRate1 = $state(0.00);
   let flowRate2 = $state(0.00);
@@ -91,7 +91,7 @@
         powerOutput2 = output(fr2!);
       }
     } else if (checked.frvEdit && checked.excEdit) {
-      currentNotes.push("This combination yields accurate results only if the resulting temperature is above 425&nbsp;K.");
+      currentNotes.push("This combination yields accurate results only if the resulting temperature is above 423&nbsp;K.");
       let newTemp = T(flowRateValve1+flowRateValve2, FR_power((excess + (turbsToPrimary ? 30000 : 0))) + 3.61);
       newTemp = isFinite(newTemp) ? newTemp : 323;
 
@@ -106,7 +106,7 @@
         fr2 = FR(newTemp, flowRateValve2);
       }
 
-      if (newTemp < 425) {
+      if (newTemp < 423) {
         currentNotes.push(`<span class="text-red-400">The temperature is currently ${newTemp.toFixed(1)}&nbsp;K.</span>`)
       }
 
