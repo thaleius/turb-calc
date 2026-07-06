@@ -57,7 +57,7 @@
     let currentNotes: string[] = [];
     if (checked.tempEdit && checked.excEdit) {
       console.log(lastEdited)
-      if (lastEdited === 0) {
+      if (lastEdited === 0 || !checked.frvEdit) {
         const fr = excess == 0 ? 0 : FR_power((excess + (turbsToPrimary ? 30000 : 0))/2);
         const frv = FRV(temp, fr);
 
