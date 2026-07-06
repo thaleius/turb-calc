@@ -185,7 +185,7 @@
   }
 </script>
 
-<div class="flex flex-row gap-5 justify-center items-center w-screen h-screen">
+<div class="flex flex-row gap-x-4 justify-center items-center w-screen h-screen">
   <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
     <div class="flex flex-col gap-y-1">
       <Display name="Temperature" bind:value={temp} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-24" compact />
