@@ -138,7 +138,7 @@
   </div>
 </div>
 
-<style lang="css" scoped>
+<style lang="postcss" scoped>
   @reference "tailwindcss";
   .title {
     @apply text-xl;
