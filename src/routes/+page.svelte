@@ -28,12 +28,15 @@
   const Output = 5;
 
   const combinations = [
-    [1, 3], // temp & flow rate valve
-    [1, 4], // temp & flow rate
+    [1, 3],   // temp & flow rate valve
+    [1, 4],   // temp & flow rate
 
-    [1, 5], // temp & power output
+    [1, 5],   // temp & power output
 
-    [2, 3]  // excess & frv
+    [2, 3],   // excess & frv
+
+    [1, 2],   // temp & excess
+    [1, 2, 3] // temp & excess & frv
   ];
 
   let checked: Record<string, boolean> = $state({
@@ -44,9 +47,50 @@
     outEdit: false
   })
 
+  let lastEdited: 0|1|2 = 0;
+
+  const handleEdit = (v: 1|2) => {
+    lastEdited = v;
+  }
+
   $effect(() => {
     let currentNotes: string[] = [];
-    if (checked.frvEdit && checked.excEdit) {
+    if (checked.tempEdit && checked.excEdit) {
+      console.log(lastEdited)
+      if (lastEdited === 0) {
+        const fr = excess == 0 ? 0 : FR_power((excess + (turbsToPrimary ? 30000 : 0))/2);
+        const frv = FRV(temp, fr);
+
+        flowRate1 = fr;
+        flowRate2 = fr;
+        flowRateValve1 = frv;
+        flowRateValve2 = frv;
+        powerOutput1 = output(fr);
+        powerOutput2 = output(fr);
+      } else {
+        let fr1, fr2;
+        if (lastEdited === 1) {
+          fr1 = FR(temp, flowRateValve1);
+          fr2 = FR_power(excess - output(fr1) + (turbsToPrimary ? 30000 : 0));
+          fr2 = fr2 < 3.61 ? 0 : fr2;
+          const frv2 = FRV(temp, fr2)
+          
+          flowRateValve2 = frv2;
+        } else if (lastEdited === 2) {
+          fr2 = FR(temp, flowRateValve2);
+          fr1 = FR_power(excess - output(fr2) + (turbsToPrimary ? 30000 : 0));
+          fr1 = fr1 < 3.61 ? 0 : fr1;
+          const frv1 = FRV(temp, fr1)
+          
+          flowRateValve1 = frv1;
+        }
+        
+        flowRate1 = fr1!;
+        flowRate2 = fr2!;
+        powerOutput1 = output(fr1!);
+        powerOutput2 = output(fr2!);
+      }
+    } else if (checked.frvEdit && checked.excEdit) {
       currentNotes.push("This combination yields accurate results only if the resulting temperature is above 425&nbsp;K.");
       let newTemp = T(flowRateValve1+flowRateValve2, FR_power((excess + (turbsToPrimary ? 30000 : 0))) + 3.61);
       newTemp = isFinite(newTemp) ? newTemp : 323;
@@ -194,11 +238,11 @@
     <div class="flex gap-x-2 [&>div]:w-1/2">
       <div>
         <div class="title text-center">Turbine 1</div>
-        <TurbineUtil bind:fr={flowRate1} bind:frEdit={checked.frEdit} bind:frv={flowRateValve1} bind:frvEdit={checked.frvEdit} bind:output={powerOutput1} bind:outEdit={checked.outEdit} />
+        <TurbineUtil onEdit={() => handleEdit(1)} bind:fr={flowRate1} bind:frEdit={checked.frEdit} bind:frv={flowRateValve1} bind:frvEdit={checked.frvEdit} bind:output={powerOutput1} bind:outEdit={checked.outEdit} />
       </div>
       <div>
         <div class="title text-center">Turbine 2</div>
-        <TurbineUtil bind:fr={flowRate2} bind:frEdit={checked.frEdit} bind:frv={flowRateValve2} bind:frvEdit={checked.frvEdit} bind:output={powerOutput2} bind:outEdit={checked.outEdit} />
+        <TurbineUtil onEdit={() => handleEdit(2)} bind:fr={flowRate2} bind:frEdit={checked.frEdit} bind:frv={flowRateValve2} bind:frvEdit={checked.frvEdit} bind:output={powerOutput2} bind:outEdit={checked.outEdit} />
       </div>
     </div>
   </div>

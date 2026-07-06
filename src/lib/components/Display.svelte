@@ -1,5 +1,25 @@
 <script lang="ts">
-  let { name, value = $bindable(), edit = $bindable(), decimals, unit, wrapperClass, inputClass, compact }: { name: string, value: number, edit: boolean, decimals: number, unit: string, wrapperClass?: string, inputClass?: string, compact?: boolean } = $props();
+  let {
+    name,
+    value = $bindable(),
+    edit = $bindable(),
+    decimals,
+    unit,
+    wrapperClass,
+    inputClass,
+    compact,
+    onEdit = () => {}
+  }: {
+    name: string,
+    value: number,
+    edit: boolean,
+    decimals: number,
+    unit: string,
+    wrapperClass?: string,
+    inputClass?: string,
+    compact?: boolean,
+    onEdit?: () => void
+  } = $props();
 
   // svelte-ignore state_referenced_locally
   let displayValue = $state(value !== undefined && value !== null ? value.toFixed(decimals) : '');
@@ -41,6 +61,7 @@
   {/if}
   <div>
     <input type="text" class="text-xl bg-transparent border-0 text-right p-0 {inputClass}" value={displayValue} oninput={(e) => {
+      onEdit();
       const input = sanitizeInput((e.target as HTMLInputElement).value);
       displayValue = input;
       isInternalUpdate = true;
