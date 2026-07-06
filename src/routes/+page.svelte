@@ -19,8 +19,8 @@
 
   const Temp = 1;
   const Excess = 2;
-  const FlowRate = 3;
-  const FowRateValve = 4;
+  const FowRateValve = 3;
+  const FlowRate = 4;
   const Output = 5;
 
   const combinations = [
@@ -121,8 +121,8 @@
     <div class="flex flex-col gap-y-2">
       <Checkbox text="Temperature" bind:checked={checked.tempEdit} onchange={(e) => updateSelection('tempEdit', e.currentTarget.checked)} />
       <!-- <Checkbox text="Excess" bind:checked={checked.excEdit} onchange={(e) => updateSelection('excEdit', e.currentTarget.checked)} /> -->
-      <Checkbox text="Flow Rate" bind:checked={checked.frEdit} onchange={(e) => updateSelection('frEdit', e.currentTarget.checked)} />
       <Checkbox text="Flow Rate Valve" bind:checked={checked.frvEdit} onchange={(e) => updateSelection('frvEdit', e.currentTarget.checked)} />
+      <Checkbox text="Flow Rate" bind:checked={checked.frEdit} onchange={(e) => updateSelection('frEdit', e.currentTarget.checked)} />
       <!-- <Checkbox text="Power Output" bind:checked={checked.outEdit} onchange={(e) => updateSelection('outEdit', e.currentTarget.checked)} /> -->
     </div>
   </div>
