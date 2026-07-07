@@ -14,11 +14,15 @@ export const getConstants = async () => {
   const dC1 = worksheet['C18'] ? worksheet['C18'].v : 0.00168020096940957;
   const C2 = worksheet['B19'] ? worksheet['B19'].v : 0.0355548898570974;
   const dC2 = worksheet['C19'] ? worksheet['C19'].v : 0.00015220331982137;
+  const C3 = worksheet['B20'] ? worksheet['B20'].v : 5495.47778948;
+  const dC3 = worksheet['C20'] ? worksheet['C20'].v : 1.06545163;
 
   return {
     C1,
     dC1,
     C2,
-    dC2
+    dC2,
+    C3,
+    dC3
   };
 };

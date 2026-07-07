@@ -1,6 +1,6 @@
 import { getConstants } from "./api";
 
-const { C1, dC1, C2, dC2 } = await getConstants();
+const { C1, dC1, C2, dC2, C3, dC3 } = await getConstants();
 const T0 = 323;
 const T1 = 370;
 const T2 = 423;
@@ -27,9 +27,9 @@ export function pressure_unc(T: number) {
 }
 
 export function power(FR: number) {
-  return FR > 3.61 ? 5499 * (FR-3.61) : 0;
+  return FR > 3.61 ? C3 * (FR-3.61) : 0;
 }
 
 export function FR_power(power: number) {
-  return power/5499+3.61;
+  return power/C3+3.61;
 }
