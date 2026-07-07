@@ -241,7 +241,7 @@
       <Display name="Temperature" bind:value={temp} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-22" compact />
       <div class="flex flex-row gap-x-1">
         <Display name="Pressure" bind:value={pres} decimals={1} unit="kPa" inputClass="w-24" wrapperClass="w-full" compact />
-        <Display name="Uncertainty" bind:value={pres_unc} decimals={1} unit="kPa" pre="&#177;" inputClass="w-12" wrapperClass="w-full" compact />
+        <!-- <Display name="Uncertainty" bind:value={pres_unc} decimals={1} unit="kPa" pre="&#177;" inputClass="w-12" wrapperClass="w-full" compact /> -->
       </div>
       <Display name="Excess" bind:value={excess} bind:edit={checked.excEdit} decimals={1} unit="kW" inputClass="w-26" compact />
     </div>
