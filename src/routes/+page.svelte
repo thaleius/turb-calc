@@ -280,7 +280,7 @@
 </script>
 
 <div class="flex flex-row gap-x-4 justify-center items-center w-screen h-screen">
-  <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)] max-h-screen overflow-y-auto">
+  <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)] max-h-screen overflow-y-auto">
     <div class="flex flex-col gap-y-1">
       <Display name="Temperature" bind:value={temp} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-22" compact />
       <div class="flex flex-row gap-x-1">
@@ -301,13 +301,13 @@
     </div>
   </div>
   <div class="flex flex-col gap-y-4 w-64 max-h-screen overflow-y-auto">
-    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="flex flex-col gap-y-2">
         <Checkbox text="Turbines powering Primary grid?" labelClass="" bind:checked={turbsToPrimary} />
       </div>
     </div>
 
-    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="title">Edit</div>
       <div class="flex flex-col gap-y-3">
         <Checkbox text="Temperature" bind:checked={checked.tempEdit} onchange={(e) => updateSelection('tempEdit', e.currentTarget.checked)} />
@@ -323,7 +323,7 @@
     </Clipboard>
 
     {#if notes.length > 0}
-      <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+      <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
         <div class="title">Notes</div>
         <div class="flex flex-col gap-y-1">
           {#each notes as note}
