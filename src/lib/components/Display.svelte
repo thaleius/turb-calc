@@ -50,14 +50,14 @@
 </script>
 
 <div class="
-  flex justify-center items-center bg-[#0A0A0A] p-3 border border-[#3b3b3b] text-[#aae28d] text-xl relative
+  flex justify-center items-center bg-[#0A0A0A] p-3 border border-neutral-800 text-[#aae28d] text-xl relative
   [&:hover_.edit]:block {edit ? "[&:hover_.edit]:block" : "[&_.edit]:hidden"}
   {compact ? "flex-col" : "flex-row"}
   {wrapperClass}
 ">
   <!-- <input class="edit absolute top-0 right-0" type="checkbox" title="Edit" onchange={(e) => readonly = !(e.target as HTMLInputElement).checked} /> -->
   {#if compact}
-    <span class="text-base text-neutral-400 font-bold">{name}</span>
+    <span class="text-xs uppercase tracking-wider text-neutral-400">{name}</span>
   {:else}
     <span>{name}: </span>
   {/if}

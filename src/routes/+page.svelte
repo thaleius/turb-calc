@@ -280,7 +280,7 @@
 </script>
 
 <div class="flex flex-row gap-x-4 justify-center items-center w-screen h-screen">
-  <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+  <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)] max-h-screen overflow-y-auto">
     <div class="flex flex-col gap-y-1">
       <Display name="Temperature" bind:value={temp} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-22" compact />
       <div class="flex flex-row gap-x-1">
@@ -300,7 +300,7 @@
       </div>
     </div>
   </div>
-  <div class="flex flex-col gap-y-4 w-64">
+  <div class="flex flex-col gap-y-4 w-64 max-h-screen overflow-y-auto">
     <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="flex flex-col gap-y-2">
         <Checkbox text="Turbines powering Primary grid?" labelClass="" bind:checked={turbsToPrimary} />
@@ -309,7 +309,7 @@
 
     <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="title">Edit</div>
-      <div class="flex flex-col gap-y-2">
+      <div class="flex flex-col gap-y-3">
         <Checkbox text="Temperature" bind:checked={checked.tempEdit} onchange={(e) => updateSelection('tempEdit', e.currentTarget.checked)} />
         <Checkbox text="Excess" bind:checked={checked.excEdit} onchange={(e) => updateSelection('excEdit', e.currentTarget.checked)} />
         <Checkbox text="Flow Rate Valve" bind:checked={checked.frvEdit} onchange={(e) => updateSelection('frvEdit', e.currentTarget.checked)} />
@@ -317,7 +317,7 @@
         <Checkbox text="Power Output" bind:checked={checked.outEdit} onchange={(e) => updateSelection('outEdit', e.currentTarget.checked)} />
       </div>
     </div>
-    
+
     <Clipboard class="w-full rounded-lg border border-orange-300 text-orange-300 bg-[#1e1e1e] hover:bg-orange-300 focus:ring-2 focus:ring-orange-300 hover:cursor-pointer hover:text-gray-950" bind:value={shareLink} bind:success={shareLinkCopied}>
       {#if shareLinkCopied}Link copied to Clipboard{:else}Share configuration{/if}
     </Clipboard>
