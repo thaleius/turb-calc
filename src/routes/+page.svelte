@@ -6,6 +6,7 @@
   import { FR, FR_power, FRV, power, pressure, pressure_unc, T } from "$lib/functions";
   import { page } from '$app/state';
   import { Clipboard } from "flowbite-svelte";
+    import { goto } from '$app/navigation';
 
   let temp = $state(423.0);
   let pres = $derived(pressure(temp));
@@ -276,6 +277,12 @@
     const compressed = LZString.compressToEncodedURIComponent(jsonString);
     const baseUrl = window.location.origin + window.location.pathname;
 		shareLink = `${baseUrl}?s=${compressed}`;
+
+    goto(`?s=${compressed}`, { 
+			replaceState: true, 
+			keepFocus: true, 
+			noScroll: true 
+		});
   });
 </script>
 
