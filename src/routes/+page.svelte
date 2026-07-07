@@ -1,8 +1,11 @@
 <script lang="ts">
+  import LZString from 'lz-string';
   import Checkbox from "$lib/components/Checkbox.svelte";
   import Display from "$lib/components/Display.svelte";
   import TurbineUtil from "$lib/components/TurbineUtil.svelte";
   import { FR, FR_power, FRV, power, pressure, pressure_unc, T } from "$lib/functions";
+  import { page } from '$app/state';
+  import { Clipboard } from "flowbite-svelte";
 
   let temp = $state(423.0);
   let pres = $derived(pressure(temp));
@@ -233,6 +236,47 @@
       });
     }
   }
+
+  let shareLink = $state('');
+  let shareLinkCopied = $state(false);
+  $effect(() => {
+    const shareData = page.url.searchParams.get('s');
+
+    if (shareData) {
+      try {
+        const sharedConfig = LZString.decompressFromEncodedURIComponent(shareData);
+        if (sharedConfig) {
+          const json = JSON.parse(sharedConfig);
+          temp = json.temp;
+          excess = json.excess;
+          flowRateValve1 = json.frv1;
+          flowRateValve2 = json.frv2;
+          flowRate1 = json.fr1;
+          flowRate2 = json.fr2;
+          powerOutput1 = json.po1;
+          powerOutput2 = json.po2;
+        }
+      } catch (error) {
+        console.error('Error while decompressing share data:', error);
+      }
+    }
+  });
+
+  $effect(() => {
+    const jsonString = JSON.stringify({
+      temp,
+      excess,
+      frv1: flowRateValve1,
+      frv2: flowRateValve2,
+      fr1: flowRate1,
+      fr2: flowRate2,
+      po1: powerOutput1,
+      po2: powerOutput2
+    })
+    const compressed = LZString.compressToEncodedURIComponent(jsonString);
+    const baseUrl = window.location.origin + window.location.pathname;
+		shareLink = `${baseUrl}?s=${compressed}`;
+  });
 </script>
 
 <div class="flex flex-row gap-x-4 justify-center items-center w-screen h-screen">
@@ -273,6 +317,10 @@
         <Checkbox text="Power Output" bind:checked={checked.outEdit} onchange={(e) => updateSelection('outEdit', e.currentTarget.checked)} />
       </div>
     </div>
+    
+    <Clipboard class="w-full rounded-lg border border-orange-300 text-orange-300 bg-[#1e1e1e] hover:bg-orange-300 focus:ring-2 focus:ring-orange-300 hover:cursor-pointer hover:text-gray-950" bind:value={shareLink} bind:success={shareLinkCopied}>
+      {#if shareLinkCopied}Link copied to Clipboard{:else}Share configuration{/if}
+    </Clipboard>
 
     {#if notes.length > 0}
       <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg monospace p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">

@@ -19,6 +19,9 @@
 		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^26.1.0",
+		"flowbite": "^4.0.2",
+		"flowbite-svelte": "^1.33.1",
+		"flowbite-svelte-icons": "^3.1.0",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",
@@ -28,6 +31,7 @@
 	},
 	"dependencies": {
 		"axios": "^1.18.1",
+		"lz-string": "^1.5.0",
 		"xlsx": "^0.18.5"
 	}
 }
