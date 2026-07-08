@@ -6,6 +6,12 @@ const T1 = 370;
 const T2 = 423;
 const P0 = 101.3;
 
+const dd = (n: number) => 10**(-n)/12**(1/2);
+export const dT = dd(1);
+export const dExc = dd(0);
+export const dFR = dd(2);
+export const dFRV = dd(1);
+
 export function FR(T: number, FRV: number) {
   return FRV/1000 * (pressure(T) - P0)**(1/2);
 }
@@ -23,7 +29,7 @@ export function FRV(T: number, FR: number) {
 
 export function FRV_unc(T: number, dT: number, FR: number, dFR: number) {
   return (
-    (1000*dFR / (pressure(T) - P0)**(1/2))**2 + (1000*FR / (pressure(T) - P0)**(3/2) * pressure_unc(T, dT))**2
+    (1000*dFR / (pressure(T) - P0)**(1/2))**2 + (1000*FR/2 / (pressure(T) - P0)**(3/2) * pressure_unc(T, dT))**2
   )**(1/2)
 }
 
@@ -33,7 +39,7 @@ export function T(FRV: number, FR: number) {
 
 export function T_unc(FRV: number, dFRV: number, FR: number, dFR: number) {
   return (
-    (2*1000**2*FR/FRV**2 * dFR)**2 + (2*1000**2*FR**2/FRV**3 * dFRV)**2 + ((1000*FR/FRV)**2 / C1**2 * dC1)**2
+    (2*1000**2*FR/FRV**2/C1 * dFR)**2 + (2*1000**2*FR**2/FRV**3/C1 * dFRV)**2 + ((1000*FR/FRV)**2 / C1**2 * dC1)**2
   )**(1/2)
 }
 

@@ -3,7 +3,7 @@
   import Checkbox from "$lib/components/Checkbox.svelte";
   import Display from "$lib/components/Display.svelte";
   import TurbineUtil from "$lib/components/TurbineUtil.svelte";
-  import { excess_unc, FR, FR_power, FR_power_unc, FR_unc, FRV, FRV_unc, power, power_unc, pressure, pressure_unc, T, T_unc } from "$lib/functions";
+  import { dExc, dFR, dFRV, dT, excess_unc, FR, FR_power, FR_power_unc, FR_unc, FRV, FRV_unc, power, power_unc, pressure, pressure_unc, T, T_unc } from "$lib/functions";
   import { page } from '$app/state';
   import { Clipboard } from "flowbite-svelte";
   import { goto } from '$app/navigation';
@@ -96,7 +96,7 @@
         const fr = excess.value == 0 ? 0 : FR_power((excess.value + (turbsToPrimary ? 30000 : 0))/2);
         const fr_unc = fr == 0 ? 0 : FR_power_unc(0);
         const frv = FRV(temp.value, fr);
-        const frv_unc = FRV_unc(temp.value, 0, fr, fr_unc);
+        const frv_unc = FRV_unc(temp.value, dT, fr, fr_unc);
 
         flowRate1.value = fr;
         flowRate2.value = fr;
@@ -115,27 +115,27 @@
         let fr1_unc = 0, fr2_unc = 0;
         if (lastEdited === 1) {
           fr1 = FR(temp.value, flowRateValve1.value);
-          fr1_unc = FR_unc(temp.value, 0, flowRateValve1.value, 0);
+          fr1_unc = FR_unc(temp.value, dT, flowRateValve1.value, dFRV);
           fr2 = FR_power(excess.value - power(fr1) + (turbsToPrimary ? 30000 : 0));
           fr2 = fr2 < 3.61 ? 0 : fr2;
-          fr2_unc = fr2 == 0 ? 0 : FR_power_unc(0);
+          fr2_unc = fr2 == 0 ? 0 : FR_power_unc(dExc);
 
           const frv2 = FRV(temp.value, fr2);
           flowRateValve2.value = frv2;
           
-          const frv2_unc = FRV_unc(temp.value, 0, fr2, fr2_unc);
+          const frv2_unc = FRV_unc(temp.value, dT, fr2, fr2_unc);
           flowRateValve2.uncertainty = frv2_unc;
         } else if (lastEdited === 2) {
           fr2 = FR(temp.value, flowRateValve2.value);
-          fr2_unc = FR_unc(temp.value, 0, flowRateValve2.value, 0);
+          fr2_unc = FR_unc(temp.value, dT, flowRateValve2.value, dFRV);
           fr1 = FR_power(excess.value - power(fr2) + (turbsToPrimary ? 30000 : 0));
           fr1 = fr1 < 3.61 ? 0 : fr1;
-          fr1_unc = fr1 == 0 ? 0 : FR_power_unc(0);
+          fr1_unc = fr1 == 0 ? 0 : FR_power_unc(dExc);
 
           const frv1 = FRV(temp.value, fr1)
           flowRateValve1.value = frv1;
           
-          const frv1_unc = FRV_unc(temp.value, 0, fr1, fr1_unc);
+          const frv1_unc = FRV_unc(temp.value, dT, fr1, fr1_unc);
           flowRateValve1.uncertainty = frv1_unc;
         }
         
@@ -178,7 +178,7 @@
           fr2 = FR(newTemp, frv2);
         }
         
-        let temp_unc = T_unc(frv, 0, fr, 0);
+        let temp_unc = T_unc(frv, dFRV, fr, dFR);
         let po1 = power(fr1);
         let po2 = power(fr2);
 
@@ -195,8 +195,8 @@
         flowRate2.value = fr2;
 
         const
-          fr1_unc = fr1 == 0 ? 0 : FR_unc(newTemp, temp_unc, frv1, 0),
-          fr2_unc = fr2 == 0 ? 0 : FR_unc(newTemp, temp_unc, frv2, 0);
+          fr1_unc = fr1 == 0 ? 0 : FR_unc(newTemp, temp_unc, frv1, dFRV),
+          fr2_unc = fr2 == 0 ? 0 : FR_unc(newTemp, temp_unc, frv2, dFRV);
 
         flowRate1.uncertainty = fr1_unc;
         flowRate2.uncertainty = fr2_unc;
@@ -224,8 +224,8 @@
         
         flowRateValve1.value = FRV(temp.value, fr1);
         flowRateValve2.value = FRV(temp.value, fr2);
-        flowRateValve1.uncertainty = FRV_unc(temp.value, 0, fr1, fr1_unc);
-        flowRateValve2.uncertainty = FRV_unc(temp.value, 0, fr2, fr2_unc);
+        flowRateValve1.uncertainty = FRV_unc(temp.value, dT, fr1, fr1_unc);
+        flowRateValve2.uncertainty = FRV_unc(temp.value, dT, fr2, fr2_unc);
 
         excess.value = po1 + po2 - (turbsToPrimary ? 30000 : 0);
         excess.uncertainty = 0;
@@ -236,8 +236,8 @@
         const temp_unc = checked.tempEdit ? 0 : temp.uncertainty;
         const fr1 = FR(temp.value, flowRateValve1.value);
         const fr2 = FR(temp.value, flowRateValve2.value);
-        const fr1_unc = FR_unc(temp.value, temp_unc, flowRateValve1.value, 0);
-        const fr2_unc = FR_unc(temp.value, temp_unc, flowRateValve2.value, 0);
+        const fr1_unc = FR_unc(temp.value, temp_unc, flowRateValve1.value, dFRV);
+        const fr2_unc = FR_unc(temp.value, temp_unc, flowRateValve2.value, dFRV);
         
         const out1 = power(fr1);
         const out2 = power(fr2);
@@ -267,8 +267,8 @@
 
         flowRateValve1.value = FRV(temp.value, flowRate1.value);
         flowRateValve2.value = FRV(temp.value, flowRate2.value);
-        flowRateValve1.uncertainty = FRV_unc(temp.value, temp.uncertainty, flowRate1.value, 0);
-        flowRateValve2.uncertainty = FRV_unc(temp.value, temp.uncertainty, flowRate2.value, 0);
+        flowRateValve1.uncertainty = FRV_unc(temp.value, temp.uncertainty, flowRate1.value, dFR);
+        flowRateValve2.uncertainty = FRV_unc(temp.value, temp.uncertainty, flowRate2.value, dFR);
         
         const out1 = power(flowRate1.value);
         const out2 = power(flowRate2.value);
@@ -458,7 +458,7 @@
 <div class="flex flex-row gap-x-4 justify-center items-center w-screen h-screen">
   <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)] max-h-screen overflow-y-auto">
     <div class="flex flex-col gap-y-1">
-      <Display name="Temperature" bind:value={temp.value} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-22" compact />
+      <Display name="Temperature" bind:value={temp.value} uncertainty={temp.uncertainty} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-22" compact />
       <div class="flex flex-row gap-x-1">
         <Display name="Pressure" bind:value={pres} uncertainty={pres_unc} decimals={1} unit="kPa" inputClass="w-24" wrapperClass="w-full" compact />
         <!-- <Display name="Uncertainty" bind:value={pres_unc} decimals={1} unit="kPa" pre="&#177;" inputClass="w-12" wrapperClass="w-full" compact /> -->
