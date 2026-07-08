@@ -256,6 +256,7 @@
           flowRate2 = json.fr2;
           powerOutput1 = json.po1;
           powerOutput2 = json.po2;
+          turbsToPrimary = json.t2p;
         }
       } catch (error) {
         console.error('Error while decompressing share data:', error);
@@ -272,7 +273,8 @@
       fr1: flowRate1,
       fr2: flowRate2,
       po1: powerOutput1,
-      po2: powerOutput2
+      po2: powerOutput2,
+      t2p: turbsToPrimary
     })
     const compressed = LZString.compressToEncodedURIComponent(jsonString);
     const baseUrl = window.location.origin + window.location.pathname;
