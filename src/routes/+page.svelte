@@ -425,7 +425,7 @@
       frvEdit: checked.frvEdit ? true : undefined,
       outEdit: checked.outEdit ? true : undefined
     };
-    const jsonString = JSON.stringify({
+    const json = {
       temp: temp.value === 423 ? undefined : temp.value,
       excess: excess.value === 0 ? undefined : excess.value,
       frv1: flowRateValve1.value === 0 ? undefined : flowRateValve1.value,
@@ -436,16 +436,22 @@
       po2: powerOutput2.value === 0 ? undefined : powerOutput2.value,
       t2p: turbsToPrimary ? true : undefined,
       checked: Object.values(c).some((e) => e) ? c : undefined,
-    });
-    const compressed = LZString.compressToEncodedURIComponent(jsonString);
-    const baseUrl = window.location.origin + window.location.pathname;
-		shareLink = `${baseUrl}?s=${compressed}`;
+    };
 
-    goto(`?s=${compressed}`, { 
-			replaceState: true, 
-			keepFocus: true, 
-			noScroll: true 
-		});
+    const url = new URL(window.location.origin + window.location.pathname);
+
+    const jsonString = JSON.stringify(json);
+    if (jsonString !== "{}") {
+      const compressed = LZString.compressToEncodedURIComponent(jsonString);
+      url.searchParams.append('s', compressed);
+    }
+
+    shareLink = url.toString();
+    goto(url.pathname + url.search, { 
+      replaceState: true, 
+      keepFocus: true, 
+      noScroll: true 
+    });
   });
 </script>
 
