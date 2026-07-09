@@ -3,7 +3,7 @@
   import Checkbox from "$lib/components/Checkbox.svelte";
   import Display from "$lib/components/Display.svelte";
   import TurbineUtil from "$lib/components/TurbineUtil.svelte";
-  import { dExc, dFR, dFRV, dT, excess_unc, FR, FR_power, FR_power_unc, FR_unc, FRV, FRV_unc, power, power_unc, pressure, pressure_unc, T, T_unc } from "$lib/functions";
+  import { dExc, dFR, dFRV, dT, excess_unc, FR, FR_power, FR_power_unc, FR_unc, FRV, FRV_unc, fw_flow, fw_flow_unc, power, power_unc, pressure, pressure_unc, T, T_unc } from "$lib/functions";
   import { page } from '$app/state';
   import { Clipboard } from "flowbite-svelte";
   import { goto } from '$app/navigation';
@@ -48,6 +48,11 @@
     value: 0,
     uncertainty: 0
   });
+
+  let feedwater_flow = $derived({
+    value: fw_flow(temp.value),
+    uncertainty: fw_flow_unc(temp.value, temp.uncertainty)
+  })
 
   let notes: string[] = $state([]);
 
@@ -464,6 +469,7 @@
         <!-- <Display name="Uncertainty" bind:value={pres_unc} decimals={1} unit="kPa" pre="&#177;" inputClass="w-12" wrapperClass="w-full" compact /> -->
       </div>
       <Display name="Excess" bind:value={excess.value} uncertainty={excess.uncertainty} bind:edit={checked.excEdit} decimals={1} unit="kW" inputClass="w-26" compact />
+      <Display name="Minimum Feedwater Flow" bind:value={feedwater_flow.value} uncertainty={feedwater_flow.uncertainty} decimals={2} unit="m³/s" inputClass="w-12" compact />
     </div>
     <div class="flex gap-x-2 [&>div]:w-1/2">
       <div>

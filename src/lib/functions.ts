@@ -1,6 +1,6 @@
 import { getConstants } from "./api";
 
-const { C1, dC1, C2, dC2, C3, dC3 } = await getConstants();
+const { C1, dC1, C2, dC2, C3, dC3, C4, dC4 } = await getConstants();
 const T0 = 323;
 const T1 = 370;
 const T2 = 423;
@@ -76,4 +76,14 @@ export function excess_unc(dFR1: number, dFR2: number) {
   return C3*(
     dFR1**2 + dFR2**2
   )**(1/2) * k
+}
+
+export function fw_flow(T: number) {
+  return T > 323 ? (T-323)/C4 : 0;
+}
+
+export function fw_flow_unc(T: number, dT: number) {
+  return T > 323 ? ((
+    (dT/C4)**2 + ((T-323)/C4**2 * dC4)**2
+  )**(1/2) * k) : 0
 }

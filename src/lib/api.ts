@@ -10,12 +10,14 @@ export const getConstants = async () => {
   const firstSheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[firstSheetName];
   
-  const C1 = worksheet['B18'] ? worksheet['B18'].v : 6.5339266918944;
-  const dC1 = worksheet['C18'] ? worksheet['C18'].v : 0.00168020096940957;
-  const C2 = worksheet['B19'] ? worksheet['B19'].v : 0.0355548898570974;
-  const dC2 = worksheet['C19'] ? worksheet['C19'].v : 0.00015220331982137;
-  const C3 = worksheet['B20'] ? worksheet['B20'].v : 5495.47778948;
-  const dC3 = worksheet['C20'] ? worksheet['C20'].v : 1.06545163;
+  const C1 = worksheet['B18'] ? worksheet['B18'].v : 6.53421059705648;
+  const dC1 = worksheet['C18'] ? worksheet['C18'].v : 0.00152124083139595;
+  const C2 = worksheet['B19'] ? worksheet['B19'].v : 0.0355533450133021;
+  const dC2 = worksheet['C19'] ? worksheet['C19'].v : 0.000147356683340934;
+  const C3 = worksheet['B20'] ? worksheet['B20'].v : 5499;
+  const dC3 = worksheet['C20'] ? worksheet['C20'].v : 0;
+  const C4 = worksheet['B21'] ? worksheet['B21'].v : 5495.47778948;
+  const dC4 = worksheet['C21'] ? worksheet['C21'].v : 1.06545163;
 
   return {
     C1,
@@ -23,6 +25,8 @@ export const getConstants = async () => {
     C2,
     dC2,
     C3,
-    dC3
+    dC3,
+    C4,
+    dC4
   };
 };
