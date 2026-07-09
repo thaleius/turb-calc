@@ -102,6 +102,8 @@
     if (checked.tempEdit) {
       temp.uncertainty = 0;
       pres_unc = pressure_unc(temp.value, 0);
+    } else {
+      pres_unc = pressure_unc(temp.value, temp.uncertainty);
     }
     if (checked.fwFlowEdit && !checked.tempEdit) {
       temp.value = T_fwFlow(feedwater_flow.value);
@@ -426,6 +428,8 @@
             feedwater_flow.value = json.fwFlow;
           if (json.fwUtil)
             feedwater_util.value = json.fwUtil;
+          if (json.sFW)
+            singleFWpump = json.sFW;
 
           if (json.checked) {
             checked.tempEdit = !!json.checked.tempEdit;
@@ -491,6 +495,7 @@
       fwFlow: feedwater_flow.value === fw_flow(423) ? undefined : feedwater_flow.value,
       fwUtil: feedwater_util.value === fw_util(423) ? undefined : feedwater_util.value,
       checked: Object.values(c).some((e) => e) ? c : undefined,
+      sFW: singleFWpump ? true : undefined,
     };
 
     const url = new URL(window.location.origin + window.location.pathname);
