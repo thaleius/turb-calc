@@ -91,7 +91,7 @@ export function fw_flow_unc(T: number, dT: number) {
 }
 
 export function T_fwFlow(fwFlow: number) {
-  return fwFlow < 0 ? 323 : fwFlow > fw_flow(fwPlateau) ? fw_flow(fwPlateau) : C4*fwFlow + 323;
+  return fwFlow < 0 ? 323 : fwFlow > fw_flow(fwPlateau) ? fwPlateau : C4*fwFlow + 323;
 }
 
 export function T_fwFlow_unc(fwFlow: number) {
