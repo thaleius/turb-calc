@@ -95,8 +95,8 @@
     if (checked.tempEdit) {
       temp.uncertainty = 0;
       pres_unc = pressure_unc(temp.value, 0);
-    } 
-    if (checked.fwFlowEdit) {
+    }
+    if (checked.fwFlowEdit && !checked.tempEdit) {
       temp.value = T_fwFlow(feedwater_flow.value);
       temp.uncertainty = T_fwFlow_unc(feedwater_flow.value);
     } else {
