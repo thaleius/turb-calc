@@ -59,6 +59,8 @@
     uncertainty: fw_util_unc(feedwater_flow.value, feedwater_flow.uncertainty)
   })
 
+  let preset = $state(-1);
+
   let notes: string[] = $state([]);
 
   const Temp = 1;
@@ -430,6 +432,8 @@
             feedwater_util.value = json.fwUtil;
           if (json.sFW)
             singleFWpump = json.sFW;
+          if (json.preset)
+            preset = json.preset;
 
           if (json.checked) {
             checked.tempEdit = !!json.checked.tempEdit;
@@ -496,6 +500,7 @@
       fwUtil: temp.value === 423 ? undefined : feedwater_util.value,
       checked: Object.values(c).some((e) => e) ? c : undefined,
       sFW: singleFWpump ? true : undefined,
+      preset: preset === -1 ? undefined : preset,
     };
 
     const url = new URL(window.location.origin + window.location.pathname);
@@ -513,55 +518,140 @@
       noScroll: true 
     });
   });
+
+  const activeClass = "bg-orange-300/10 border border-orange-300 text-orange-300";
+  const inactiveClass = "bg-[#161616] border border-[#3b3b3b] text-gray-400 hover:text-gray-200 hover:border-gray-500 hover:bg-[#252525] focus:outline-none focus:ring-1 focus:ring-orange-300";
+
+  function resetChecked() {
+    checked.tempEdit = false;
+    checked.excEdit = false;
+    checked.frEdit = false;
+    checked.frvEdit = false;
+    checked.outEdit = false;
+    checked.fwFlowEdit = false;
+    checked.fwUtilEdit = false;
+
+    turbsToPrimary = false;
+    singleFWpump = false;
+  }
+
+  $effect(() => {
+    if (preset == 1) {
+      resetChecked();
+
+      checked.tempEdit = true;
+      checked.excEdit = true;
+
+      temp.value = 1420;
+      excess.value = 20000;
+    } else if (preset == 2) {
+      resetChecked();
+
+      checked.tempEdit = true;
+      checked.excEdit = true;
+
+      temp.value = 2150;
+      excess.value = 38000;
+    } else if (preset == 3) {
+      resetChecked();
+
+      checked.tempEdit = true;
+      checked.excEdit = true;
+      
+      turbsToPrimary = true;
+
+      temp.value = 1420;
+      excess.value = 20000;
+    } else if (preset == 4) {
+      resetChecked();
+
+      checked.tempEdit = true;
+      checked.excEdit = true;
+      
+      turbsToPrimary = true;
+
+      temp.value = 2150;
+      excess.value = 38000;
+    }
+  });
+
+  function handleModify() {
+    preset = -1;
+  }
 </script>
 
 <div class="flex flex-row gap-x-4 justify-center items-center w-screen h-screen font-mono">
+  <div class="flex flex-col gap-y-2 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)] max-h-screen overflow-y-auto">
+    <div class="title">Calculation Presets</div>
+    <div class="grid grid-cols-2 gap-3 font-mono text-sm">
+      <button class={`flex flex-col items-start p-3 rounded transition-colors text-left cursor-pointer ${preset === 1 ? activeClass : inactiveClass}`} onclick={() => preset == 1 ? preset = -1 : preset = 1}>
+        <span class="text-xs uppercase opacity-75">Preset 01</span>
+        <span class="font-bold mt-1">Standard</span>
+      </button>
+
+      <button class={`flex flex-col items-start p-3 rounded transition-colors text-left cursor-pointer ${preset === 2 ? activeClass : inactiveClass}`} onclick={() => preset == 2 ? preset = -1 : preset = 2}>
+        <span class="text-xs uppercase opacity-60">Preset 02</span>
+        <span class="font-bold mt-1">POEA</span>
+      </button>
+
+      <button class={`flex flex-col items-start p-3 rounded transition-colors text-left cursor-pointer ${preset === 3 ? activeClass : inactiveClass}`} onclick={() => preset == 3 ? preset = -1 : preset = 3}>
+        <span class="text-xs uppercase opacity-60">Preset 03</span>
+        <span class="font-bold mt-1">Turbines</span>
+      </button>
+
+      <button class={`flex flex-col items-start p-3 rounded transition-colors text-left cursor-pointer ${preset === 4 ? activeClass : inactiveClass}`} onclick={() => preset == 4 ? preset = -1 : preset = 4}>
+        <span class="text-xs uppercase opacity-60">Preset 04</span>
+        <span class="font-bold mt-1">POEA & Turbines</span>
+      </button>
+    </div>
+  </div>
+
   <div class="flex flex-col gap-y-4 w-110 bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)] max-h-screen overflow-y-auto">
     <div class="flex flex-col gap-y-1">
       <div class="flex flex-row gap-x-1">
-        <Display name="Temperature" bind:value={temp.value} uncertainty={temp.uncertainty} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-22" wrapperClass="w-full" compact />
-        <Display name="Pressure" bind:value={pres} uncertainty={pres_unc} decimals={1} unit="kPa" inputClass="w-24" wrapperClass="w-full" compact />
-        <!-- <Display name="Uncertainty" bind:value={pres_unc} decimals={1} unit="kPa" pre="&#177;" inputClass="w-12" wrapperClass="w-full" compact /> -->
+        <Display name="Temperature" bind:value={temp.value} uncertainty={temp.uncertainty} bind:edit={checked.tempEdit} decimals={1} unit="K" inputClass="w-22" wrapperClass="w-full" compact onEdit={handleModify} />
+        <Display name="Pressure" bind:value={pres} uncertainty={pres_unc} decimals={1} unit="kPa" inputClass="w-24" wrapperClass="w-full" compact onEdit={handleModify} />
+        <!-- <Display name="Uncertainty" bind:value={pres_unc} decimals={1} unit="kPa" pre="&#177;" inputClass="w-12" wrapperClass="w-full" compact onEdit={handleModify} /> -->
       </div>
       <Display name="Excess" bind:value={excess.value} uncertainty={excess.uncertainty} bind:edit={checked.excEdit} decimals={1} unit="kW" inputClass="w-26" compact />
       <div class="flex flex-row gap-x-1">
-        <Display name="Feedwater Flow" bind:value={feedwater_flow.value} uncertainty={feedwater_flow.uncertainty} bind:edit={checked.fwFlowEdit} decimals={2} unit="m³/s" inputClass="w-12" wrapperClass="w-full" compact />
-        <Display name="Utilization" bind:value={feedwater_util.value} uncertainty={feedwater_util.uncertainty} bind:edit={checked.fwUtilEdit} decimals={1} unit="%" inputClass="w-16" wrapperClass="w-full" compact />
+        <Display name="Feedwater Flow" bind:value={feedwater_flow.value} uncertainty={feedwater_flow.uncertainty} bind:edit={checked.fwFlowEdit} decimals={2} unit="m³/s" inputClass="w-12" wrapperClass="w-full" compact onEdit={handleModify} />
+        <Display name="Utilization" bind:value={feedwater_util.value} uncertainty={feedwater_util.uncertainty} bind:edit={checked.fwUtilEdit} decimals={1} unit="%" inputClass="w-16" wrapperClass="w-full" compact onEdit={handleModify} />
       </div>
     </div>
     <div class="flex gap-x-1 [&>div]:w-1/2">
       <div>
         <div class="title text-center">Turbine 1</div>
-        <TurbineUtil onEdit={() => handleEdit(1)} bind:fr={flowRate1} bind:frEdit={checked.frEdit} bind:frv={flowRateValve1} bind:frvEdit={checked.frvEdit} bind:output={powerOutput1} bind:outEdit={checked.outEdit} />
+        <TurbineUtil onEdit={() => { handleModify(); handleEdit(1); }} bind:fr={flowRate1} bind:frEdit={checked.frEdit} bind:frv={flowRateValve1} bind:frvEdit={checked.frvEdit} bind:output={powerOutput1} bind:outEdit={checked.outEdit} />
       </div>
       <div>
         <div class="title text-center">Turbine 2</div>
-        <TurbineUtil onEdit={() => handleEdit(2)} bind:fr={flowRate2} bind:frEdit={checked.frEdit} bind:frv={flowRateValve2} bind:frvEdit={checked.frvEdit} bind:output={powerOutput2} bind:outEdit={checked.outEdit} />
+        <TurbineUtil onEdit={() => { handleModify(); handleEdit(2); }} bind:fr={flowRate2} bind:frEdit={checked.frEdit} bind:frv={flowRateValve2} bind:frvEdit={checked.frvEdit} bind:output={powerOutput2} bind:outEdit={checked.outEdit} />
       </div>
     </div>
   </div>
   <div class="flex flex-col gap-y-4 w-66 max-h-screen overflow-y-auto">
     <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="flex flex-col gap-y-2">
-        <Checkbox text="Turbines powering Primary grid?" labelClass="leading-none" bind:checked={turbsToPrimary} />
-        <Checkbox text="One feedwater pump unavailable?" labelClass="leading-none" bind:checked={singleFWpump} />
+        <Checkbox text="Turbines powering Primary grid?" labelClass="leading-none" bind:checked={turbsToPrimary} onchange={() => handleModify() } />
+        <Checkbox text="One feedwater pump unavailable?" labelClass="leading-none" bind:checked={singleFWpump} onchange={() => handleModify() }  />
       </div>
     </div>
 
-    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-6 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
+    <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-5 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
       <div class="title">Edit</div>
       <div class="flex flex-col gap-y-4 leading-none">
-        <Checkbox text="Temperature" bind:checked={checked.tempEdit} onchange={(e) => updateSelection('tempEdit', e.currentTarget.checked)} />
-        <Checkbox text="Excess" bind:checked={checked.excEdit} onchange={(e) => updateSelection('excEdit', e.currentTarget.checked)} />
-        <Checkbox text="Feedwater Flow Rate" bind:checked={checked.fwFlowEdit} onchange={(e) => updateSelection('fwFlowEdit', e.currentTarget.checked)} />
-        <Checkbox text="Feedwater Util." bind:checked={checked.fwUtilEdit} onchange={(e) => updateSelection('fwUtilEdit', e.currentTarget.checked)} />
-        <Checkbox text="Flow Rate Valve" bind:checked={checked.frvEdit} onchange={(e) => updateSelection('frvEdit', e.currentTarget.checked)} />
-        <Checkbox text="Flow Rate" bind:checked={checked.frEdit} onchange={(e) => updateSelection('frEdit', e.currentTarget.checked)} />
+        <Checkbox text="Temperature" bind:checked={checked.tempEdit} onchange={(e) => { handleModify(); updateSelection('tempEdit', e.currentTarget.checked); }} />
+        <Checkbox text="Excess" bind:checked={checked.excEdit} onchange={(e) => { handleModify(); updateSelection('excEdit', e.currentTarget.checked) }} />
+        <Checkbox text="Feedwater Flow Rate" bind:checked={checked.fwFlowEdit} onchange={(e) => { handleModify(); updateSelection('fwFlowEdit', e.currentTarget.checked) }} />
+        <Checkbox text="Feedwater Util." bind:checked={checked.fwUtilEdit} onchange={(e) => { handleModify(); updateSelection('fwUtilEdit', e.currentTarget.checked) }} />
+        <Checkbox text="Flow Rate Valve" bind:checked={checked.frvEdit} onchange={(e) => { handleModify(); updateSelection('frvEdit', e.currentTarget.checked) }} />
+        <Checkbox text="Flow Rate" bind:checked={checked.frEdit} onchange={(e) => { handleModify(); updateSelection('frEdit', e.currentTarget.checked) }} />
         <Checkbox text="Power Output" bind:checked={checked.outEdit} onchange={(e) => updateSelection('outEdit', e.currentTarget.checked)} />
       </div>
     </div>
 
-    <Clipboard class="w-full rounded-lg border border-orange-300 text-orange-300 bg-[#1e1e1e] hover:bg-orange-300 focus:ring-2 focus:ring-orange-300 hover:cursor-pointer hover:text-gray-950" bind:value={shareLink} bind:success={shareLinkCopied}>
+    <Clipboard class="w-full rounded-lg border border-orange-300 text-orange-300 bg-[#1e1e1e] hover:bg-orange-300 focus:ring-2 focus:ring-orange-300 hover:cursor-pointer hover:text-gray-950 transition-colors" bind:value={shareLink} bind:success={shareLinkCopied}>
       {#if shareLinkCopied}Link copied to Clipboard{:else}Share configuration{/if}
     </Clipboard>
 
