@@ -78,22 +78,24 @@ export function excess_unc(dFR1: number, dFR2: number) {
   )**(1/2) * k
 }
 
+const fwPlateau = 2300;
+
 export function fw_flow(T: number) {
-  return T > 323 ? T > 3120 ? (3120-323)/C4 : (T-323)/C4 : 0;
+  return T > 323 ? T > fwPlateau ? (fwPlateau-323)/C4 : (T-323)/C4 : 0;
 }
 
 export function fw_flow_unc(T: number, dT: number) {
-  return T > 323 ? T > 3120 ? 0 : ((
+  return T > 323 ? T > fwPlateau ? 0 : ((
     (dT/C4)**2 + ((T-323)/C4**2 * dC4)**2
   )**(1/2) * k) : 0
 }
 
 export function T_fwFlow(fwFlow: number) {
-  return fwFlow < 0 ? 323 : fwFlow > fw_flow(3120) ? fw_flow(3120) : C4*fwFlow + 323;
+  return fwFlow < 0 ? 323 : fwFlow > fw_flow(fwPlateau) ? fw_flow(fwPlateau) : C4*fwFlow + 323;
 }
 
 export function T_fwFlow_unc(fwFlow: number) {
-  return fwFlow < 0 ? 0 : fwFlow > fw_flow(3120) ? 0 : (
+  return fwFlow < 0 ? 0 : fwFlow > fw_flow(fwPlateau) ? 0 : (
     (dC4*fwFlow)**2
   )**(1/2) * k;
 }
