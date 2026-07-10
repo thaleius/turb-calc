@@ -3,6 +3,8 @@ import * as XLSX from 'xlsx';
 
 const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vS92rySf5971fG16pRx7EcDuAXkuU__EQIxW5aKRkAKgv3FJ4hf1EFnw5y03JWP75Bzz5stV53F9SgI/pub?gid=1022868083&single=true&output=xlsx`;
 
+export let notesPre: string[] = [];
+
 export const getConstants = async () => {
   const response = await axios.get(url, { responseType: 'arraybuffer' });
   const workbook = XLSX.read(response.data, { type: 'buffer' });
@@ -20,6 +22,10 @@ export const getConstants = async () => {
   const dC4 = worksheet['C21'] ? worksheet['C21'].v : 24.5949707;
   const C5 = worksheet['B22'] ? worksheet['B22'].v : 2816.98830942;
   const dC5 = worksheet['C22'] ? worksheet['C22'].v : 11.75458032;
+
+  if (worksheet['L1000']) {
+    notesPre = (worksheet['L1000'].v as string).split('\n');
+  }
 
   return {
     C1,

@@ -7,6 +7,7 @@
   import { page } from '$app/state';
   import { Clipboard } from "flowbite-svelte";
   import { goto } from '$app/navigation';
+  import { notesPre } from '$lib/api';
 
   let temp = $state({
     value: 423,
@@ -666,6 +667,9 @@
       <div class="flex flex-col bg-[#1e1e1e] border-[#3b3b3b] border-2 rounded-lg p-5 shadow-[0_0_15px_rgba(0,0,0,0.05)]">
         <div class="title">Notes</div>
         <div class="flex flex-col gap-y-1">
+          {#each notesPre as note}
+            <span>{note}</span>
+          {/each}
           {#each notes as note}
             <span>{@html note}</span>
           {/each}
