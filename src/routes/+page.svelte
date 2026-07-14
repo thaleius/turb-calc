@@ -688,7 +688,7 @@
     </Clipboard>
 
     {#if (notes.length > 0 || notesPre.length > 0)}
-      <div class="flex flex-col bg-[#1e1e1e] box">
+      <div class="flex flex-col bg-[#1e1e1e] box overflow-y-auto">
         <div class="title">Notes</div>
         <div class="flex flex-col gap-y-1">
           {#each notesPre as note}
