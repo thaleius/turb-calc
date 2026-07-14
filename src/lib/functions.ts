@@ -1,6 +1,6 @@
 import { getConstants } from "./api";
 
-const { C1, dC1, C2, dC2, C3, dC3, C4, dC4, C5, dC5 } = await getConstants();
+const { C1, dC1, C2, dC2, C3, dC3, C4, dC4, C5, dC5, C6, dC6, C7, dC7 } = await getConstants();
 const T0 = 323;
 const T1 = 370;
 const T2 = 423;
@@ -118,4 +118,18 @@ export function fw_flow_util_unc(fwUtil: number, dfwUtil: number, single: boolea
   return single ? fw_flow_util_unc(fwUtil, dfwUtil)/2 : (
     (dfwUtil/C5)**2 + (fwUtil/C5**2 * dC5)**2
   )**(1/2) * k
+}
+
+export function vibration(fr: number) {
+  return fr < 3.55 ? 0 : C6 * fr + (55 - C6) * Math.max(0, fr - C7) + 9;
+}
+
+export function vibration_unc(fr: number, dfr: number) {
+  return fr < 3.55 ? 0 : (
+    fr > C7 ? (
+      (55 * dfr)**2 + ((C6 - 55) * dC7)**2 + (dC6 * C7)**2 + 2 * C7 * (C6 - 55) * 0.5632 * dC6 * dC7
+    )**(1/2) : (
+      (C6 * dfr)**2 + (dC6 * fr)**2
+    )**(1/2)
+  ) * k
 }

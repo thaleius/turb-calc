@@ -3,7 +3,7 @@
   import Checkbox from "$lib/components/Checkbox.svelte";
   import Display from "$lib/components/Display.svelte";
   import TurbineUtil from "$lib/components/TurbineUtil.svelte";
-  import { dExc, dFR, dFRV, dT, excess_unc, FR, FR_power, FR_power_unc, FR_unc, FRV, FRV_unc, fw_flow, fw_flow_unc, fw_flow_util, fw_flow_util_unc, fw_util, fw_util_unc, power, power_unc, pressure, pressure_unc, T, T_fwFlow, T_fwFlow_unc, T_unc } from "$lib/functions";
+  import { dExc, dFR, dFRV, dT, excess_unc, FR, FR_power, FR_power_unc, FR_unc, FRV, FRV_unc, fw_flow, fw_flow_unc, fw_flow_util, fw_flow_util_unc, fw_util, fw_util_unc, power, power_unc, pressure, pressure_unc, T, T_fwFlow, T_fwFlow_unc, T_unc, vibration, vibration_unc } from "$lib/functions";
   import { page } from '$app/state';
   import { Clipboard } from "flowbite-svelte";
   import { goto } from '$app/navigation';
@@ -41,6 +41,16 @@
   let powerOutput2 = $state({
     value: 0,
     uncertainty: 0
+  });
+
+  let vibration1 = $derived({
+    value: vibration(flowRate1.value),
+    uncertainty: vibration_unc(flowRate1.value, flowRate1.uncertainty)
+  });
+
+  let vibration2 = $derived({
+    value: vibration(flowRate2.value),
+    uncertainty: vibration_unc(flowRate2.value, flowRate2.uncertainty)
   });
 
   let turbsToPrimary = $state(false);
@@ -348,6 +358,20 @@
     if (flowRateValve1.value > 100 || flowRateValve2.value > 100) {
       currentNotes.push("At least one of the turbines is operating at more than 100 % capacity.");
     }
+
+    if (flowRate1.value < 3.55 || flowRate2.value < 3.55 || flowRate1.value > 10.43 || flowRate2.value > 10.43) {
+      const lower = flowRate1.value < 3.55 || flowRate2.value < 3.55 ? "lower than 3.55&nbsp;m³/s" : "";
+      const higher = flowRate1.value > 10.43 || flowRate2.value > 10.43 ? "higher than 10.43&nbsp;m³/s" : "";
+
+      let s = "Turbine vibrations have not been researched for Flow Rates ";
+
+      if (lower && higher)
+        s += `${lower} and ${higher}.`;
+      else
+        s += `${lower+higher}.`
+
+      currentNotes.push(s);
+    }
     
     notes = currentNotes;
   });
@@ -630,11 +654,11 @@
     <div class="flex gap-x-1 [&>div]:w-1/2">
       <div>
         <div class="title text-center">Turbine 1</div>
-        <TurbineUtil onEdit={() => { handleModify(); handleEdit(1); }} bind:fr={flowRate1} bind:frEdit={checked.frEdit} bind:frv={flowRateValve1} bind:frvEdit={checked.frvEdit} bind:output={powerOutput1} bind:outEdit={checked.outEdit} />
+        <TurbineUtil onEdit={() => { handleModify(); handleEdit(1); }} bind:fr={flowRate1} bind:frEdit={checked.frEdit} bind:frv={flowRateValve1} bind:frvEdit={checked.frvEdit} bind:output={powerOutput1} vibration={vibration1} bind:outEdit={checked.outEdit} />
       </div>
       <div>
         <div class="title text-center">Turbine 2</div>
-        <TurbineUtil onEdit={() => { handleModify(); handleEdit(2); }} bind:fr={flowRate2} bind:frEdit={checked.frEdit} bind:frv={flowRateValve2} bind:frvEdit={checked.frvEdit} bind:output={powerOutput2} bind:outEdit={checked.outEdit} />
+        <TurbineUtil onEdit={() => { handleModify(); handleEdit(2); }} bind:fr={flowRate2} bind:frEdit={checked.frEdit} bind:frv={flowRateValve2} bind:frvEdit={checked.frvEdit} bind:output={powerOutput2} vibration={vibration2} bind:outEdit={checked.outEdit} />
       </div>
     </div>
   </div>

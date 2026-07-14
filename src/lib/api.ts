@@ -22,6 +22,10 @@ export const getConstants = async () => {
   const dC4 = worksheet['C21'] ? worksheet['C21'].v : 24.5949707;
   const C5 = worksheet['B22'] ? worksheet['B22'].v : 2816.98830942;
   const dC5 = worksheet['C22'] ? worksheet['C22'].v : 11.75458032;
+  const C6 = worksheet['B23'] ? worksheet['B23'].v : 1.2825911989078995;
+  const dC6 = worksheet['C23'] ? worksheet['C23'].v : 0.02148636845996197;
+  const C7 = worksheet['B24'] ? worksheet['B24'].v : 8.837717535337958;
+  const dC7 = worksheet['C24'] ? worksheet['C24'].v : 0.006277059600375124;
 
   if (worksheet['L1000']) {
     notesPre = (worksheet['L1000'].v as string).split('\n');
@@ -37,6 +41,10 @@ export const getConstants = async () => {
     C4,
     dC4,
     C5,
-    dC5
+    dC5,
+    C6,
+    dC6,
+    C7,
+    dC7
   };
 };
