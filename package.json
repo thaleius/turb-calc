@@ -31,7 +31,6 @@
 		"vite-plugin-svelte-tailwind-auto-reference": "^1.0.2"
 	},
 	"dependencies": {
-		"@naramo/shared": "*",
 		"axios": "^1.18.1",
 		"echarts": "^6.1.0",
 		"lz-string": "^1.5.0",

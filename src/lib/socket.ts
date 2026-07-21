@@ -1,5 +1,5 @@
-import type { ClientToServerEvents, ServerToClientEvents } from '@naramo/shared';
 import { io, Socket as S } from 'socket.io-client';
+import type { ClientToServerEvents, ServerToClientEvents } from './socket-types';
 
 export interface CalcResult {
   meltdownTime: number;
