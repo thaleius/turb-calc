@@ -22,6 +22,9 @@ export default defineConfig({
 				precompress: false,
 				strict: true
 			}),
+			prerender: {
+				entries: [] 
+			},
 			paths: {
 				base: process.argv.includes('dev') ? '' : '/nnpp-calc'
 			}

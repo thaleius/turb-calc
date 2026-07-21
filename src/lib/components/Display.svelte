@@ -10,6 +10,7 @@
     wrapperClass,
     inputClass,
     compact,
+    showUncertainty = true,
     onEdit = () => {}
   }: {
     name: string,
@@ -22,6 +23,7 @@
     wrapperClass?: string,
     inputClass?: string,
     compact?: boolean,
+    showUncertainty?: boolean,
     onEdit?: () => void
   } = $props();
 
@@ -73,5 +75,5 @@
     }} readonly={!edit} />
     <span>{unit}</span>
   </div>
-  <span class="text-xs text-gray-500">&#177;&#8239;{(uncertainty || 0).toFixed(decimals)}&#8239;{unit}</span>
+  {#if showUncertainty}<span class="text-xs text-gray-500">&#177;&#8239;{(uncertainty || 0).toFixed(decimals)}&#8239;{unit}</span>{/if}
 </div>

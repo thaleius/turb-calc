@@ -683,7 +683,7 @@
       </div>
     </div>
 
-    <Clipboard class="w-full rounded-lg border border-orange-300 text-orange-300 bg-[#1e1e1e] hover:bg-orange-300 focus:ring-2 focus:ring-orange-300 hover:cursor-pointer hover:text-gray-950 transition-colors" bind:value={shareLink} bind:success={shareLinkCopied}>
+    <Clipboard class="button w-full" bind:value={shareLink} bind:success={shareLinkCopied}>
       {#if shareLinkCopied}Link copied to Clipboard{:else}Share configuration{/if}
     </Clipboard>
 
@@ -702,22 +702,3 @@
     {/if}
   </div>
 </div>
-
-<style lang="postcss" scoped>
-  @reference "tailwindcss";
-  .title {
-    @apply text-xl;
-    @apply font-bold;
-    @apply mb-2;
-    @apply text-orange-300;
-    @apply uppercase;
-  }
-
-  .box {
-    @apply border-[#3b3b3b] border-2 rounded-lg p-5 shadow-[0_0_15px_rgba(0,0,0,0.05)];
-  }
-
-  .column {
-    @apply max-h-screen overflow-y-auto;
-  }
-</style>
