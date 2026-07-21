@@ -12,6 +12,7 @@
   import { emptyCalc, Socket, type CalcResult } from '$lib/socket';
   import Chart from '$lib/components/Chart.svelte';
   import { untrack } from 'svelte';
+    import Stack from '$lib/components/Stack.svelte';
 
   let temp = $state({
     value: 423,
@@ -755,21 +756,32 @@
     });
   }
   
-  const announcements = [
-    [-10, "10 seconds: Insert control rods", false],
-    [50/9-10, "10 seconds: Open feedwater valves", false],
-    [50-10, "10 seconds: Activate all coolant systems", false],
-  ]
-  $effect(() => {
-    announcements.push([scramTime-10, "10 seconds: scram", false]);
-    if (meltdownTime === 50) {
-      announcements.push([50-20, "Meltdown imminent, prepare to activate all coolant systems.", false]);
-    } else {
-      announcements.push([meltdownTime-10, "Meltdown imminent.", false]);
-    }
-  })
+  let announcements = $derived([
+		{ triggerTime: -10, text: 'Insert control rods' },
+		{ triggerTime: Math.floor(50 / 9 - 10), text: 'Open feedwater valves' },
+		{ triggerTime: scramTime - 10, text: 'Scram' },
+    { triggerTime: 50 - 10, text: 'Activate all coolant systems' }
+	]);
+
+  let activeAnnouncements = $derived(
+		announcements
+			.filter((a) => {
+        return currentSimTime !== 0 && a.triggerTime <= currentSimTime && a.triggerTime + 10 - currentSimTime + 5 > 0;
+      })
+			.map((a) => {
+				const targetTime = a.triggerTime + 10;
+				const secondsLeft = Math.max(0, targetTime - currentSimTime);
+
+				return {
+					id: a.text,
+					secondsLeft,
+					text: a.text
+				};
+			})
+	);
 
   let currentUtterance: SpeechSynthesisUtterance | null = null;
+  const playedAnnouncements = new Set<string>();
 
   function playAnnouncement(text: string) {
     if (!isOwner && !audioUnlocked) return;
@@ -783,28 +795,17 @@
 
     window.speechSynthesis.speak(currentUtterance);
   }
-  
-  $effect(() => {
-    if (currentSimTime !== 0) {
-      const index = announcements.findIndex((e) => {
-        const startTime = e[0] as number;
-        const isPlayed = e[2] as boolean;
-        return !isPlayed && startTime <= currentSimTime;
-      });
-      
-      if (index !== -1) {
-        if (!isOwner && !audioUnlocked) {
-          console.warn("Audio output blocked: User has not interacted with the page yet.");
-          return;
-        }
 
-        announcements[index][2] = true;
-        playAnnouncement(announcements[index][1] as string);
+  $effect(() => {
+    for (const announcement of activeAnnouncements) {
+      if (!playedAnnouncements.has(announcement.id)) {
+        playedAnnouncements.add(announcement.id);
+        playAnnouncement(announcement.text + ' in 10 seconds.');
       }
     }
-  })
+  });
 
-  let profile = $state('calc') as 'calc' | 'scram';
+  let profile = $state<'calc' | 'scram'>('calc');
 </script>
 
 <div class="relative w-screen h-screen overflow-hidden">
@@ -899,129 +900,136 @@
     </div>
   </div>
 
-  <div id="scram" class="absolute inset-0 flex flex-row gap-4 justify-center items-center transition-transform duration-500 ease-in-out" style="transform: translateX({profile === 'scram' ? 0 : 100}vw);">
-    <div class="box">
-      <Chart {props} bind:isPlaying={isPlaying} bind:currentSimTime={currentSimTime} bind:currentTemp={temp.value} class="w-200 h-150" />
-    </div>
-
-    <div class="flex flex-col gap-y-4 w-80">
-      {#if isOwner}
-      <div class="box">
-        <div class="title">
-          Online Session
-        </div>
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-2">
-            <PenSolid class="shrink-0 h-6 w-6 text-orange-300" /><input type="url" placeholder="Server" bind:value={inputUrl} />
-          </div>
-          <button onclick={() => {
-            if (connectionStatus) {
-              socket.io.disconnect();
-            } else {
-              if (inputUrl) {
-                socketUrl = inputUrl;
-              }
-              if (socketUrl) {
-                localStorage.setItem('socketUrl', socketUrl);
-                socket = new Socket(socketUrl);
-                connect();
-              }
-            }
-          }} class="button w-full">
-            {#if connectionStatus}Disconnect{:else}Connect{/if}
-          </button>
-          {#if connectionStatus && authUrl !== ''}
-          <div>
-            <a class="button w-full" about="_blank" href={authUrl}>
-              Authorize
-            </a>
-          </div>
-          {/if}
-        </div>
+  <div id="scram" class="absolute inset-0 flex justify-center items-center transition-transform duration-500 ease-in-out" style="transform: translateX({profile === 'scram' ? 0 : 100}vw);">
+    <div class="flex flex-row gap-4 justify-center items-center">
+      <div class="self-start">
+        <Stack items={activeAnnouncements} />
       </div>
-      {/if}
 
-      <div class="box flex flex-col">
-        <div class="title">
-          Animation
-        </div>
-        <div class="flex flex-col gap-2 items-center">
-          <div class="flex flex-row gap-2 w-full">
-            <Display name="SCRAM temp" compact showUncertainty={false} edit={isOwner} bind:value={scramTemp} decimals={0} unit="K" inputClass="w-12" wrapperClass="text-orange-300 w-full" />
-            {#if isOwner}<button onclick={loadData} class="button w-full">Confirm</button>{/if}
+      <div class="box">
+        <Chart {props} bind:isPlaying={isPlaying} bind:currentSimTime={currentSimTime} bind:currentTemp={temp.value} class="w-200 h-150" />
+      </div>
+
+      <div class="flex flex-col gap-y-4 w-80">
+        {#if isOwner}
+        <div class="box">
+          <div class="title">
+            Session
           </div>
-          {#if isOwner}
-          <div class="flex flex-row gap-2 w-full">
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <PenSolid class="shrink-0 h-6 w-6 text-orange-300" /><input type="url" placeholder="Server" bind:value={inputUrl} />
+            </div>
             <button onclick={() => {
-              if (currentSimTime < endTime) {
-                isPlaying = !isPlaying;
-                update();
+              if (connectionStatus) {
+                socket.io.disconnect();
+              } else {
+                if (inputUrl) {
+                  socketUrl = inputUrl;
+                }
+                if (socketUrl) {
+                  localStorage.setItem('socketUrl', socketUrl);
+                  socket = new Socket(socketUrl);
+                  connect();
+                }
               }
             }} class="button w-full">
-              {isPlaying ? 'Pause' : currentSimTime > startTime ? 'Continue' : 'Start'}
+              {#if connectionStatus}Disconnect{:else}Connect{/if}
             </button>
-            
-            <button onclick={() => { {
-              isPlaying = false;
-              currentSimTime = startTime;
-              update();
-
-              for (let i = 0; i < announcements.length; i++) {
-                announcements[i][2] = false;
-              }
-            }}} class="button w-full">
-              Reset
-            </button>
+            {#if connectionStatus && authUrl !== ''}
+            <div>
+              <a class="button w-full" about="_blank" href={authUrl}>
+                Authorize
+              </a>
+            </div>
+            {/if}
           </div>
-          {/if}
         </div>
-      </div>
-      {#if shareLinkScram}
-        <Clipboard class="button focusring w-full" bind:value={shareLinkScram} bind:success={shareLinkScramCopied}>
-          {#if shareLinkScramCopied}Link copied to Clipboard{:else}Share configuration{/if}
-        </Clipboard>
-      {/if}
-      {#if userList.length > 0}
-      <div class="flex flex-col box">
-        <div class="title">Users</div>
-        <div class="flex flex-col gap-2">
-          {#each userList as user}
-          <span>{user}</span>
-          {/each}
+        {/if}
+
+        <div class="box flex flex-col">
+          <div class="title">
+            Animation
+          </div>
+          <div class="flex flex-col gap-2 items-center">
+            <div class="flex flex-row gap-2 w-full">
+              <Display name="SCRAM temp" compact showUncertainty={false} edit={isOwner} bind:value={scramTemp} decimals={0} unit="K" inputClass="w-12" wrapperClass="text-orange-300 w-full" />
+              {#if isOwner}<button onclick={loadData} class="button w-full">Confirm</button>{/if}
+            </div>
+            {#if isOwner}
+            <div class="flex flex-row gap-2 w-full">
+              <button onclick={() => {
+                if (currentSimTime < endTime) {
+                  isPlaying = !isPlaying;
+                  update();
+                }
+              }} class="button w-full">
+                {isPlaying ? 'Pause' : currentSimTime > startTime ? 'Continue' : 'Start'}
+              </button>
+              
+              <button onclick={() => { {
+                isPlaying = false;
+                currentSimTime = startTime;
+
+                playedAnnouncements.clear();
+                window.speechSynthesis.cancel();
+
+                update();
+              }}} class="button w-full">
+                Reset
+              </button>
+            </div>
+            {/if}
+          </div>
         </div>
-      </div>
-      {/if}
-      {#if !isOwner && !audioUnlocked}
-      <div class="box flex flex-col">
-        <div class="title">Audio</div>
-        <button onclick={() => {
-          audioUnlocked = true;
-          window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
-        }} class="button w-full">
-          Sprachausgabe aktivieren
-        </button>
-      </div>
-      {/if}
-      {#if shared}
-      <div class="box flex flex-col">
-        <div class="title">Share</div>
-        <button onclick={() => {
-          socket.io.disconnect();
+        {#if shareLinkScram}
+          <Clipboard class="button focusring w-full" bind:value={shareLinkScram} bind:success={shareLinkScramCopied}>
+            {#if shareLinkScramCopied}Link copied to Clipboard{:else}Share configuration{/if}
+          </Clipboard>
+        {/if}
+        {#if userList.length > 0}
+        <div class="flex flex-col box">
+          <div class="title">Users</div>
+          <div class="flex flex-col gap-2">
+            {#each userList as user}
+            <span>{user}</span>
+            {/each}
+          </div>
+        </div>
+        {/if}
+        {#if !isOwner && !audioUnlocked}
+        <div class="box flex flex-col">
+          <div class="title">Audio</div>
+          <button onclick={() => {
+            audioUnlocked = true;
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+          }} class="button w-full">
+            Sprachausgabe aktivieren
+          </button>
+        </div>
+        {/if}
+        {#if shared}
+        <div class="box flex flex-col">
+          <div class="title">Share</div>
+          <button onclick={() => {
+            socket.io.disconnect();
 
-          userList = [];
+            userList = [];
 
-          shared = false;
-          sessionCode = '';
-          localStorage.removeItem('sessionCode');
-          socketUrl = '';
-          localStorage.removeItem('socketUrl');
-          isOwner = true;
-          loadData();
-        }} class="button w-full">
-          Reset
-        </button>
+            shared = false;
+            sessionCode = '';
+            localStorage.removeItem('sessionCode');
+            socketUrl = '';
+            localStorage.removeItem('socketUrl');
+            isOwner = true;
+
+            loadData();
+          }} class="button w-full">
+            Reset
+          </button>
+        </div>
+        {/if}
       </div>
-      {/if}
     </div>
   </div>
 
@@ -1029,7 +1037,7 @@
     class="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-2 button font-bold shadow-lg"
     onclick={() => profile = profile === 'calc' ? 'scram' : 'calc'}
   >
-    Wechsel zu {profile === 'calc' ? 'SCRAM' : 'Calculation'}
+    {profile === 'calc' ? 'SCRAM Calculator' : 'Calculator'}
   </button>
 </div>
 
@@ -1049,4 +1057,19 @@
       @apply block text-center;
     }
   }
+
+  @keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slideInFromBottom 0.3s ease-out forwards;
+}
 </style>
