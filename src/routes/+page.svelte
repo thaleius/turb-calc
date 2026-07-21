@@ -795,8 +795,8 @@
     }
 
     result.push(
-      { triggerTime: 50 + 100 - 10, text: 'Open all release valves' },
-      { triggerTime: 50 + 200 - 10, text: 'Open all release valves' }
+      { triggerTime: 50 + 100 - 10, text: 'Open all releave valves' },
+      { triggerTime: 50 + 200 - 10, text: 'Open all releave valves' }
     );
 
     return result;
