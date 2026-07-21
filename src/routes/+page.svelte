@@ -678,6 +678,22 @@
     }
   }
 
+  const reset = () => {
+    userList = [];
+    inputUrl = '';
+    sessionCode = '';
+    localStorage.removeItem('sessionCode');
+    socketUrl = '';
+    localStorage.removeItem('socketUrl');
+    props = emptyCalc;
+    scramTemp = 3120;
+    startTime = 0;
+    currentSimTime = 0;
+    temp.value = 423;
+    shared = false;
+    isOwner = true;
+  }
+
   function connect() {
     socket.io.connect();
 
@@ -712,6 +728,7 @@
     })
 
     socket.io.on('disconnect', () => {
+      reset();
       connectionStatus = false;
     });
 
@@ -1040,15 +1057,7 @@
           <button onclick={() => {
             socket.io.disconnect();
 
-            userList = [];
-
-            shared = false;
-            sessionCode = '';
-            localStorage.removeItem('sessionCode');
-            socketUrl = '';
-            localStorage.removeItem('socketUrl');
-            isOwner = true;
-
+            reset();
             loadData();
           }} class="button w-full">
             Reset
