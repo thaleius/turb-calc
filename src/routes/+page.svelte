@@ -978,6 +978,10 @@
               <Display name="SCRAM temp" compact showUncertainty={false} edit={isOwner} bind:value={scramTemp} decimals={0} unit="K" inputClass="w-12" wrapperClass="text-orange-300 w-full" />
               {#if isOwner}<button onclick={loadData} class="button w-full">Confirm</button>{/if}
             </div>
+            <div class="flex flex-row gap-2 w-full">
+              <Display name="Current temp" compact showUncertainty={false} edit={false} value={temp.value} decimals={1} unit="K" inputClass="w-18" wrapperClass="text-orange-300 w-full" />
+              <Display name="Time" compact showUncertainty={false} edit={false} value={currentSimTime} decimals={1} unit="s" inputClass="w-15" wrapperClass="text-orange-300 w-full" />
+            </div>
             {#if isOwner}
             <div class="flex flex-row gap-2 w-full">
               <button onclick={() => {
