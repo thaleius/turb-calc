@@ -640,7 +640,7 @@
 
   async function loadData() {
     if (isOwner) {
-      const res = await socket.io.emitWithAck('session', id, scramTemp, sessionCode);
+      const res = await socket.io.emitWithAck('session', id, scramTemp, noFuel, sessionCode);
       sessionCode = res.code;
       sessionStorage.setItem('sessionCode', sessionCode);
 
@@ -738,6 +738,8 @@
       socket.io.disconnect();
     };
   }
+
+  let noFuel = $state(false);
 
   let isConnecting = false;
   let shared = $state(false);
@@ -995,6 +997,7 @@
             Animation
           </div>
           <div class="flex flex-col gap-2 items-center">
+            <Checkbox text="No fuel" bind:checked={noFuel} />
             <div class="flex flex-row gap-2 w-full">
               <Display name="SCRAM temp" compact showUncertainty={false} edit={isOwner} bind:value={scramTemp} decimals={0} unit="K" inputClass="w-12" wrapperClass="text-orange-300 w-full" />
               {#if isOwner}<button onclick={loadData} class="button w-full">Confirm</button>{/if}

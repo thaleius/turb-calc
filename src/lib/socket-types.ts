@@ -29,7 +29,7 @@ export interface ClientToServerEvents {
   }) => void) => void;
   newAuth: (id: string | null) => void;
   auth: ({ id, code }: { id: string, code?: string }) => void;
-  session: (id: string | null, scramTemp: number, code: string | null, ack: ({
+  session: (id: string | null, scramTemp: number, noFuel: boolean, code: string | null, ack: ({
     code, data
   }: {
     code: string, data: CalcResult, startTime: number
