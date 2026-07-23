@@ -719,9 +719,8 @@
       localStorage.setItem('id', id);
       authUrl = url;
 
-      if (localStorage.getItem('sessionCode')) {
-        window.location.href = authUrl;
-      }
+      if (shared)
+        isAuthed = true;
     });
 
     socket.io.on('authed', (success) => {
