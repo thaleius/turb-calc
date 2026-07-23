@@ -36,6 +36,7 @@ export interface ClientToServerEvents {
   }) => void) => void;
   sessionUpdate: (id: string | null, code: string, data: {
     scramTemp: number | null,
+    noFuel: boolean,
     simTime: {
       time: number,
       at: number

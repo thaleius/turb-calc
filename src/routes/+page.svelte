@@ -777,6 +777,7 @@
   const update = () => {
     socket.io.emit('sessionUpdate', id, sessionCode, {
       scramTemp: scramTemp,
+      noFuel,
       isPlaying,
       simTime: {
         time: currentSimTime,
