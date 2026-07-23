@@ -689,18 +689,20 @@
 
   const reset = () => {
     userList = [];
-    inputUrl = '';
+    if (!isOwner){
+      inputUrl = '';
+      socketUrl = '';
+      localStorage.removeItem('socketUrl');
+      props = emptyCalc;
+      scramTemp = 3120;
+      startTime = 0;
+      currentSimTime = 0;
+      temp.value = 423;
+      isOwner = true;
+    }
     sessionCode = '';
     localStorage.removeItem('sessionCode');
-    socketUrl = '';
-    localStorage.removeItem('socketUrl');
-    props = emptyCalc;
-    scramTemp = 3120;
-    startTime = 0;
-    currentSimTime = 0;
-    temp.value = 423;
     shared = false;
-    isOwner = true;
   }
 
   function connect() {
@@ -1019,7 +1021,7 @@
             Animation
           </div>
           <div class="flex flex-col gap-2 items-center">
-            <Checkbox text="No fuel" bind:checked={noFuel} />
+            {#if isOwner}<Checkbox text="No fuel" bind:checked={noFuel} />{/if}
             <div class="flex flex-row gap-2 w-full">
               <Display name="SCRAM temp" compact showUncertainty={false} edit={isOwner} bind:value={scramTemp} decimals={0} unit="K" inputClass="w-12" wrapperClass="text-orange-300 w-full" />
               {#if isOwner}<button onclick={loadData} class="button w-full">Confirm</button>{/if}
