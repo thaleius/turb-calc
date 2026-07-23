@@ -1094,7 +1094,7 @@
   </div>
 
   <button 
-    class="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-2 button font-bold shadow-lg"
+    class={`absolute top-1/2 ${profile === 'calc' ? 'right-8 translate-x-1/2 rotate-90' : 'left-8 -translate-x-1/2 -rotate-90'} -translate-y-1/2 whitespace-nowrap z-50 px-6 py-2 button font-bold shadow-lg`}
     onclick={() => profile = profile === 'calc' ? 'scram' : 'calc'}
   >
     {profile === 'calc' ? 'SCRAM Calculator' : 'Calculator'}
